@@ -1,0 +1,131 @@
+#include "BluetoothSerial.h"
+
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
+#endif
+
+#define x_paso 15    // Define el Pin de STEP para Motor de eje X
+#define x_dire 2   // Define el Pin de DIR  para Motor de eje X
+#define x_habi 0    // Define el Pin de ENABLE  para Motor de eje X
+#define y_paso 14    // Define el Pin de STEP para Motor de eje y
+#define y_dire 12   // Define el Pin de DIR  para Motor de eje y
+#define y_habi 0    // Define el Pin de ENABLE  para Motor de eje y
+#define cerrojo 4 //Define el pin para la apertura del cerrojo
+#define luz1 25
+#define luz2 26
+#define luz3 27
+#define luz4 32
+
+
+char orden = 0; // define la variable orden como un caracter ASCII.
+int retardo = 2000;   // A menor número, el giro es más rápido (ref 500)
+int tiempo = 3000;   // durante cuánto tiempo da el giro el motor (vueltas) (ref 1000)
+
+BluetoothSerial SerialBT;
+
+void setup()
+{
+  Serial.begin(115200); // abre el puerto serie para enviar o recibir datos a 115200 bits por segundo. 
+  SerialBT.begin("CASA-DOMOTICA"); //Bluetooth device name, por ejemplo "ESP32-Puerta".
+  Serial.println("Setup completed"); // Mensaje de depuración
+  
+  pinMode(x_paso, OUTPUT); pinMode(x_dire, OUTPUT); pinMode(x_habi, OUTPUT);
+  pinMode(y_paso, OUTPUT); pinMode(y_dire, OUTPUT); pinMode(y_habi, OUTPUT);
+  pinMode(cerrojo, OUTPUT); pinMode(luz1, OUTPUT); pinMode(luz2, OUTPUT);
+  pinMode(luz3, OUTPUT); pinMode(luz4, OUTPUT);
+  
+  digitalWrite(luz1, HIGH);
+  digitalWrite(luz2, HIGH);
+  digitalWrite(luz3, HIGH);
+  digitalWrite(luz4, HIGH);
+}
+
+void loop()
+{
+  if (SerialBT.available()) // Si hay un caracter en el buffer serial el programa entra aquí.
+  { 
+    orden = SerialBT.read(); // Se lee el valor numérico en el puerto serie y se guarda en la variable orden.
+
+    if (orden == 'A') // Si el valor es A...
+    {
+      digitalWrite(cerrojo, 0); //Se abre el cerrojo.
+      giro(x_paso, x_dire, x_habi, 1); // Se da la orden para que el motor abra la puerta.
+    }         
+    if (orden == 'a') // Si el valor es a...
+    {
+      giro(x_paso, x_dire, x_habi, 0); // Se da la orden para que el motor cierre la puerta.
+      digitalWrite(cerrojo, 1); //Se cierra el cerrojo.
+    }  
+    if (orden == 'B') // Si el valor es a...
+    {
+      giro(y_paso, y_dire, y_habi, 1); // Se da la orden para que el motor cierre la cortina
+    }  
+    if (orden == 'b') // Si el valor es a...
+    {
+      giro(y_paso, y_dire, y_habi, 0); // Se da la orden para que el motor cierre la cortina
+    }  
+    if (orden == 'C') // Si el valor es a...
+    {
+      digitalWrite(luz1, HIGH);
+    } 
+    if (orden == 'c') // Si el valor es a...
+    {
+      digitalWrite(luz1, LOW);
+    } 
+    if (orden == 'D') // Si el valor es a...
+    {
+      digitalWrite(luz2, HIGH);
+    } 
+    if (orden == 'd') // Si el valor es a...
+    {
+      digitalWrite(luz2, LOW);
+    } 
+    if (orden == 'E') // Si el valor es a...
+    {
+      digitalWrite(luz3, HIGH);
+    } 
+    if (orden == 'e') // Si el valor es a...
+    {
+      digitalWrite(luz3, LOW);
+    } 
+    if (orden == 'F') // Si el valor es a...
+    {
+      digitalWrite(luz4, HIGH);
+    } 
+    if (orden == 'f') // Si el valor es a...
+    {
+      digitalWrite(luz4, LOW);
+    } 
+  } 
+  //delay(500);
+}
+
+void giro(int paso_, int dire_, int habi_, int dir) 
+{
+  digitalWrite(habi_, LOW);  // Habilita el Driver
+  if (dir == 0)
+  { 
+    digitalWrite(dire_, LOW);   // dirección de giro 0
+    for(int i = 0; i < tiempo; i++)
+    {  
+      // da pasos por un tiempo  
+      digitalWrite(paso_, HIGH);      
+      delayMicroseconds(retardo);          
+      digitalWrite(paso_, LOW);       
+      delayMicroseconds(retardo); 
+    }
+  }
+  else if (dir == 1)
+  { 
+    digitalWrite(dire_, HIGH);   // direccion de giro 1
+    for(int i = 0; i < tiempo; i++)
+    {   
+      // da pasos por un tiempo  
+      digitalWrite(paso_, HIGH);      
+      delayMicroseconds(retardo);          
+      digitalWrite(paso_, LOW);       
+      delayMicroseconds(retardo);  
+    }
+  }
+  digitalWrite(habi_, HIGH);   // quita la habilitacion del Driver
+}
