@@ -4,12 +4,12 @@
     #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
 
-#define motor_x_step 15
-#define motor_x_direction 2
-#define motor_x_EN 0 
-#define motor_y_step 14
-#define motor_y_direction 12
-#define motor_y_EN 0
+#define motor_door_step 15
+#define motor_door_direction 2
+#define motor_door_EN 0 
+#define motor_curtain_step 14
+#define motor_curtain_direction 12
+#define motor_curtain_EN 0
 #define bolt 4 
 #define light1 23
 #define light2 25
@@ -24,12 +24,12 @@ void setup()
     Serial.begin(115200);
     SerialBT.begin("CASA-DOMOTICA");   //Bluetooth device name is "CASA-DOMOTICA"
 
-    pinMode(motor_x_step, OUTPUT);
-    pinMode(motor_x_direction, OUTPUT);
-    pinMode(motor_x_EN,   OUTPUT);
-    pinMode(motor_y_step, OUTPUT);
-    pinMode(motor_y_direction, OUTPUT);
-    pinMode(motor_y_EN,   OUTPUT);
+    pinMode(motor_door_step, OUTPUT);
+    pinMode(motor_door_direction, OUTPUT);
+    pinMode(motor_door_EN,   OUTPUT);
+    pinMode(motor_curtain_step, OUTPUT);
+    pinMode(motor_curtain_direction, OUTPUT);
+    pinMode(motor_curtain_EN,   OUTPUT);
     pinMode(bolt,   OUTPUT);
     pinMode(light1,   OUTPUT);
     pinMode(light2,   OUTPUT);
@@ -49,22 +49,22 @@ void loop()
     { 
         order = SerialBT.read();
     
-        if (order == 'A') {                                          //Door
-            digitalWrite(bolt, 0);                                   // Open bolt
-            giro(motor_x_step, motor_x_direction, motor_x_EN, 1);    // Open door
+        if (order == 'A') {                                                                      //Door
+            digitalWrite(bolt, 0);                                                               // Open bolt
+            rotateStepper(motor_door_step, motor_door_direction, motor_door_EN, 1);              // Open door
         }         
         else if (order == 'a') {
-            giro(motor_x_step, motor_x_direction, motor_x_EN, 0);    // Close door
-            digitalWrite(bolt, 1);                                   // Close bolt
+            rotateStepper(motor_door_step, motor_door_direction, motor_door_EN, 0);              // Close door
+            digitalWrite(bolt, 1);                                                               // Close bolt
         }  
-        else if (order == 'B') {                                     //Curtain
-            giro(motor_y_step, motor_y_direction, motor_y_EN, 1);    //Open
+        else if (order == 'B') {                                                                 //Curtain
+            rotateStepper(motor_curtain_step, motor_curtain_direction, motor_curtain_EN, 1);     //Open
         }  
         else if (order == 'b')
         {
-            giro(motor_y_step, motor_y_direction, motor_y_EN, 0);    //Close
+            rotateStepper(motor_curtain_step, motor_curtain_direction, motor_curtain_EN, 0);     //Close
         }  
-        else if (order == 'C') {                                     //Lights        
+        else if (order == 'C') {                                                                 //Lights        
             digitalWrite(light1, HIGH);
         } 
         else if (order == 'c') {
@@ -91,18 +91,19 @@ void loop()
     } 
 }
 
-void giro(int stepPin, int directionPin, int enablePin, bool direction) 
+void rotateStepper(int stepPin, int directionPin, int enablePin, bool direction) 
 {
-    #define MOTOR_DELAY 2000 // (ref 500)
-    #define MOTOR_TIME 3000 // (ref 1000)
+    const int motorDelay = 2000; // ref 500
+    const int motorSteps = 3000; // ref 1000
+
     digitalWrite(enablePin, LOW);  // Enable the driver
     digitalWrite(directionPin, direction);
-    for(int i = 0; i < MOTOR_TIME; i++)
+    for(int i = 0; i < motorSteps; i++)
     {  
         digitalWrite(stepPin, HIGH);      
-        delayMicroseconds(MOTOR_DELAY);          
+        delayMicroseconds(motorDelay);          
         digitalWrite(stepPin, LOW);       
-        delayMicroseconds(MOTOR_DELAY); 
+        delayMicroseconds(motorDelay); 
     }
     digitalWrite(enablePin, HIGH); 
 }
