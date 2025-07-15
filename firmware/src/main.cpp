@@ -16,7 +16,8 @@
 #define light2 25
 #define light3 26
 #define light4 27
-        
+#define testPin 2
+
 char order = 0;
 BluetoothSerial SerialBT;
 void rotateStepper(int stepPin, int directionPin, int enablePin, bool direction); 
@@ -36,11 +37,13 @@ void setup()
     pinMode(light2,   OUTPUT);
     pinMode(light3,   OUTPUT);
     pinMode(light4,   OUTPUT);
+    pinMode(testPin, OUTPUT);
 
     digitalWrite(light1, HIGH);
     digitalWrite(light2, HIGH);
     digitalWrite(light3, HIGH);
     digitalWrite(light4, HIGH);
+    digitalWrite(testPin, LOW);
 }
 
 void loop()
@@ -87,6 +90,12 @@ void loop()
         } 
         else if (order == 'f') {
             digitalWrite(light4, LOW);
+        } 
+        else if (order == 'T') {
+            digitalWrite(testPin, HIGH);
+        }
+        else if (order == 't') {
+            digitalWrite(testPin, LOW);
         } 
     } 
 }
