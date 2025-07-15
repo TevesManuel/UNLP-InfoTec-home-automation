@@ -1,0 +1,4 @@
+- Este proyecto me consumio, pero dejo mucho aprendisaje.
+    - No confies el paquetes de debian, instala el JDK desde https://www.openlogic.com/openjdk-downloads
+    - Este chabon https://www.youtube.com/watch?v=UuHLPsjp6fM&ab_channel=Dan%E2%80%99sReactNativeLab es chad.
+    - Basicamente muchos npx expo install, config basica de EAS, abstraccion de software en useBLE.js, y resistencia para no caer en depresion.
