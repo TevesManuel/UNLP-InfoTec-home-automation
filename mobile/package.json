@@ -12,13 +12,17 @@
     "@config-plugins/react-native-ble-plx": "^7.0.0",
     "eas-cli": "^16.15.0",
     "expo": "53.0.19",
+    "expo-blur": "~14.1.5",
+    "expo-dev-client": "~5.2.4",
     "expo-device": "~7.1.4",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
     "react-native": "0.79.5",
     "react-native-base64": "^0.2.1",
     "react-native-ble-plx": "^3.5.0",
-    "expo-dev-client": "~5.2.4"
+    "react-native-linear-gradient": "^2.8.3",
+    "react-native-safe-area-context": "5.4.0",
+    "react-native-svg": "15.11.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
