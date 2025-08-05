@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { StyleSheet, View, Button, ScrollView, Text } from 'react-native';
+import { StyleSheet, View, Button, ScrollView, Text, TouchableOpacity } from 'react-native';
 import RNBluetoothClassic from 'react-native-bluetooth-classic';
 import { BluetoothDevice } from 'react-native-bluetooth-classic';
 import { requestBluetoothPermission } from './hooks/useBluetooth'
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
-import HomeSVG from './components/HouseSVG/HouseSVG';
-import { BlurView } from '@react-native-community/blur';
+import MyHouse from './components/MyHouse/MyHouse';
+
 
 const NAME_OF_TARGET_DEVICE = "CASA-DOMOTICA"
 
@@ -18,7 +18,6 @@ export default function App() {
         </SafeAreaProvider>
     );
 }
-
 
 const SafeApp = () => {
     const [device, setDevice] = useState<BluetoothDevice | null>(null);
@@ -46,52 +45,54 @@ const SafeApp = () => {
                 end={{ x: 1, y: 1 }}    // derecha abajo
                 style={{ flex: 1 }}
             >
-                <ScrollView contentContainerStyle={styles.container}>
-                    <Text style={styles.title}>Mi casa</Text>
-                    {[...Array(8)].map((_, i) => (
-                        <BlurView key={i} blurAmount={80} blurType="light" style={styles.box}>
-                            <HomeSVG width={60} height={60} />
-                            <Text style={styles.subTitle}>Dormitorio</Text>
-                        </BlurView>
-                    ))}
-                </ScrollView>
+                <ScrollView contentContainerStyle={{...styles.container, ...(device ? {} : { flex: 1, justifyContent: 'center'})}}>
+                    {
+                        device ? (
+                            <MyHouse />
+                        ) : (
+                            <TouchableOpacity style={{backgroundColor: '#FFFFFF22'}} onPress={async () => {
+                                console.log("Click at ", Date.now())
+                                let hasPermission = await requestBluetoothPermission()
+                                if (hasPermission) {
+                                    let bluetoothEnabled = await RNBluetoothClassic.isBluetoothEnabled();
+                                    if(bluetoothEnabled) {
+                                        let devices = await RNBluetoothClassic.getBondedDevices();
+                                        console.log("devices count: ", devices.length);
+                                        devices.map((iterDevice) => {
+                                            if(iterDevice.name == NAME_OF_TARGET_DEVICE) {
+                                                setDevice(iterDevice);
+                                            }
+                                        });
+                                    }
+                                }
+                            }}>
+                                <Text style={{color: 'white', padding: 20, fontSize: 30}}>Buscar casa</Text>
+                            </TouchableOpacity>
+                        )
+                    }
+                    </ScrollView>
             </LinearGradient>
         </View>
     );
 
-    return (
-    <View style={styles.container}>
-        {
-            device ? (
-                <>
-                    <Button title='On' onPress={async () => {
-                        sendDataToDevice("T");
-                    }}></Button>
-                    <Button title='Off' onPress={async () => {
-                        sendDataToDevice("t");
-                    }}></Button>
-                </>
-            ) : (
-                <Button title='Scan' onPress={async () => {
-                    console.log("Click at ", Date.now())
-                    let hasPermission = await requestBluetoothPermission()
-                    if (hasPermission) {
-                        let bluetoothEnabled = await RNBluetoothClassic.isBluetoothEnabled();
-                        if(bluetoothEnabled) {
-                            let devices = await RNBluetoothClassic.getBondedDevices();
-                            console.log("devices count: ", devices.length);
-                            devices.map((iterDevice) => {
-                                if(iterDevice.name == NAME_OF_TARGET_DEVICE) {
-                                    setDevice(iterDevice);
-                                }
-                            });
-                        }
-                    }
-                }}/>
-            )
-        }
-    </View>
-    );
+    // return (
+    // <View style={styles.container}>
+    //     {
+    //         device ? (
+    //             <>
+    //                 <Button title='On' onPress={async () => {
+    //                     sendDataToDevice("T");
+    //                 }}></Button>
+    //                 <Button title='Off' onPress={async () => {
+    //                     sendDataToDevice("t");
+    //                 }}></Button>
+    //             </>
+    //         ) : (
+
+    //         )
+    //     }
+    // </View>
+    // );
 }
 
 const styles = StyleSheet.create({
@@ -107,8 +108,8 @@ const styles = StyleSheet.create({
         paddingBottom: 50,
         gap: 10,
         //FOR DEBUG
-        // borderWidth: 2,
-        // borderColor: 'red',
+        borderWidth: 2,
+        borderColor: 'red',
     },
     box: {
         backgroundColor: 'rgba(255, 255, 255, 0.3)',
