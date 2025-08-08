@@ -1,17 +1,47 @@
 import HomeSVG from './../HouseSVG/HouseSVG';
 import { TouchableOpacity } from 'react-native';
-import { Alert, Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
+
+import { useContext, useState } from 'react';
+import { DeviceContext } from '../../context/DeviceContext';
+
+
+interface DomoticDeviceType {
+    character: string;
+    label: string;
+}
+
+const DomoticDevice = ({ character, label }: DomoticDeviceType) => {
+    const context = useContext(DeviceContext);
+    if (!context) throw new Error('DeviceContext debe usarse dentro de DeviceProvider');
+
+    const { device, setDevice } = context;
+
+    const [state, setState] = useState<string>(character.toUpperCase());
+    return (
+        <TouchableOpacity style={styles.box} onPress={() => {
+            device?.write(state);
+            setState(state === character.toUpperCase() ? character.toLowerCase() : character.toUpperCase());
+        }}
+        >
+            <HomeSVG width={60} height={60} />
+            <Text style={styles.subTitle}>{label}</Text>
+        </TouchableOpacity>
+    );
+}
+
 const MyHouse = () => {
     return (
         <>
             <Text style={styles.title}>Mi casa</Text>
-            {[...Array(8)].map((_, i) => (
-                // <BlurView key={i} blurAmount={80} blurType="light" style={styles.box}>
-                <TouchableOpacity key={i}style={styles.box} onPress={() => {Alert.alert("Título", "Mensaje");}}>
-                    <HomeSVG width={60} height={60} />
-                    <Text style={styles.subTitle}>Dormitorio</Text>
-                </TouchableOpacity>
-            ))}
+
+            <DomoticDevice character='T' label='Test Luz'/>
+            <DomoticDevice character='C' label='Luz 1'/>
+            <DomoticDevice character='D' label='Luz 2'/>
+            <DomoticDevice character='E' label='Luz 3'/>
+            <DomoticDevice character='F' label='Luz 4'/>
+            <DomoticDevice character='A' label='Puerta'/>
+            <DomoticDevice character='B' label='Cortina'/>
         </>
     );
 };
